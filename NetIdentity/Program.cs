@@ -11,8 +11,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-//    .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -43,13 +41,17 @@ builder.Services.AddAuthorization(options =>
             return false;
         }));
 
+    options.AddPolicy("SoloMasculino", policy =>
+        policy.RequireClaim("Genero", "0"));
+
+    options.AddPolicy("SoloFemenino", policy =>
+        policy.RequireClaim("Genero", "1"));
+
     options.AddPolicy("SoloAdmin", policy => policy.RequireRole("Admin"));
 
     options.AddPolicy("AdminOUsuario", policy =>
         policy.RequireRole("Admin", "Usuario"));
-
 });
-
 
 builder.Services.AddControllersWithViews();
 
@@ -61,7 +63,6 @@ using (var scope = app.Services.CreateScope())
     await SeedData.Initialize(services);
 }
 
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -70,7 +71,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -84,6 +84,5 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-//app.MapRazorPages();
 
 app.Run();
