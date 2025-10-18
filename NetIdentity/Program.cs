@@ -42,6 +42,12 @@ builder.Services.AddAuthorization(options =>
             }
             return false;
         }));
+
+    options.AddPolicy("SoloAdmin", policy => policy.RequireRole("Admin"));
+
+    options.AddPolicy("AdminOUsuario", policy =>
+        policy.RequireRole("Admin", "Usuario"));
+
 });
 
 
